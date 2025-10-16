@@ -165,6 +165,12 @@ def command_line_parser() -> argparse.ArgumentParser:
         default=75,
         help="Inline list similarity threshold (101 disables table formatting",
     )
+    parser.add_argument(
+        "--newline-terminate",
+        default=False,
+        action="store_true",
+        help="Add a trailing newline when writing to disk",
+    )
 
     parser.add_argument(
         "json",
@@ -254,8 +260,11 @@ def main() -> None:  # noqa: C901, PLR0915, PLR0912
                 die("While reading {}: {}".format(fn_in, ex))
 
             out_json_string = formatter.serialize(obj)
+            if fn_out is None or args.newline_terminate:
+                out_json_string += line_ending
+
             if fn_out is None:
-                print(out_json_string, end=line_ending)
+                print(out_json_string)
             elif not args.in_place or in_json_string != out_json_string:
                 open(fn_out, "w").write(out_json_string)
 
